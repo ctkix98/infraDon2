@@ -2,6 +2,16 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import CedrineView from '../views/CedrineView.vue'
 
+import { createApp, ref } from 'vue'
+
+createApp({
+  setup() {
+    return {
+      count: ref(0)
+    }
+  }
+}).mount('#app')
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
