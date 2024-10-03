@@ -1,0 +1,69 @@
+{
+    "velos": [
+      {
+        "nom": "Velo de Montagne XTRail",
+        "description": "Un velo tout-terrain robuste avec une suspension complete, ideal pour les terrains accidentes.",
+        "prix": 1200,
+        "couleur": "Rouge",
+        "avis": [
+          {
+            "utilisateur": "Alice",
+            "commentaire": "Excellente qualite, parfait pour les pistes difficiles."
+          },
+          {
+            "utilisateur": "Paul",
+            "commentaire": "Un peu lourd, mais tres stable."
+          }
+        ]
+      },
+      {
+        "nom": "Velo de Ville UrbanEase",
+        "description": "Un velo de ville leger et elegant, parfait pour les trajets quotidiens.",
+        "prix": 850,
+        "couleur": "Noir",
+        "avis": [
+          {
+            "utilisateur": "Marie",
+            "commentaire": "Tres confortable et style, ideal pour la ville."
+          },
+          {
+            "utilisateur": "Jean",
+            "commentaire": "Bon velo, mais le panier avant pourrait etre plus solide."
+          }
+        ]
+      },
+      {
+        "nom": "Velo Electrique PowerRide",
+        "description": "Un velo electrique puissant avec une autonomie de 80 km. Ideal pour les longues distances.",
+        "prix": 2500,
+        "couleur": "Bleu",
+        "avis": [
+          {
+            "utilisateur": "Sophie",
+            "commentaire": "Super autonomie et tres pratique en montee."
+          },
+          {
+            "utilisateur": "Lucas",
+            "commentaire": "Tres cher, mais l'assistance electrique est incroyable."
+          }
+        ]
+      },
+      {
+        "nom": "Velo Pliant Fold&Go",
+        "description": "Un velo pliant pratique pour les deplacements en ville et les petits espaces.",
+        "prix": 600,
+        "couleur": "Gris",
+        "avis": [
+          {
+            "utilisateur": "Claire",
+            "commentaire": "Facile a plier, parfait pour mes trajets en train."
+          },
+          {
+            "utilisateur": "Thomas",
+            "commentaire": "Un peu fragile, mais tres compact une fois plie."
+          }
+        ]
+      }
+    ]
+  }
+  
