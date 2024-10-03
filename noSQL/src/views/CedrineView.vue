@@ -3,27 +3,26 @@
     <h1>This is a Cedrine page</h1>
   </div>
   <div>
-    <button @click="count++">
-    Count is: {{ count }}
-  </button>
+    <button @click="Inc">
+      Count is: {{ total }}
+    </button>
   </div>
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
-
-export default{
-  setup() {
-    const count = ref(0)  // Déclare la valeur réactive
-
-    return {
-      count
-    }
-  }
-}
+export default {
+  data() {
+    //return {
+      //total: 10,  
+    //};
+  },
+  methods: {
+    //Inc() {
+      //this.total++; 
+    //},
+  },
+};
 </script>
-
-
 
 <style>
 @media (min-width: 1024px) {
