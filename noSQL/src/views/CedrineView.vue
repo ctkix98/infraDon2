@@ -15,12 +15,32 @@ export default {
     //return {
       //total: 10,  
     //};
+    return {
+      datas: [],
+      databaseReference: null,
+    }
+
+
   },
   methods: {
     //Inc() {
       //this.total++; 
     //},
+    initDatabase(){
+      const db = new PouchDB('http://localhost:5986/bikeshop');
+      console.log(db);
+
+    },
+    fetchData(){
+
+    },
+
+    mounted(){
+      this.initDatabase()
+    }
+
   },
+
 };
 </script>
 
