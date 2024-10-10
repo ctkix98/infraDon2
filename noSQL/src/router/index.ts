@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import CedrineView from '../views/CedrineView.vue'
+//import CedrineView from '../views/CedrineView.vue'
+//import PouchDB from 'pouchdb'
 
 
 const router = createRouter({
@@ -22,7 +23,7 @@ const router = createRouter({
   {
     path: '/cedrine',
     name: 'cedrine',
-    component: CedrineView
+    component: () => import('../views/CedrineView.vue')
   }
   ]
 })
