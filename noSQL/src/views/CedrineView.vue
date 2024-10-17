@@ -3,7 +3,7 @@ import PouchDB from 'pouchdb'
 export default {
   data() {
     return {
-      datas: [], // Stockage des documents
+      datas: [] as any[], // Stockage des documents, et mettre ici que c'est un tableau vide, de n'importe quel type
       databaseReference: null, // Référence à la base de données
       storage: null as PouchDB.Database | null
     };
@@ -40,8 +40,13 @@ export default {
 
     //Récupérer
     getName(){
+      
+      const self = this; //donc pour récupérer l'objet, on fait une constante
+      // ici dans mon component
       this.storage?.allDocs({include_docs :true}).then(result => {
-        this.datas = result.rows.map(row =>row.doc);
+        // ici je suis dans l object base de donnees
+        // this = base de donnees
+        self.datas = result.rows.map(row =>row.doc);
         console.log("Les noms des vélos")
         this.datas.forEach((doc:any)=>{
           doc.velos.forEach((velo: any)=>{
