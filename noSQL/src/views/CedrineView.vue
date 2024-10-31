@@ -52,6 +52,7 @@ export default {
         })
       })
 
+
       //console.log(`Ce sont les données ${donnees}`);
       //this.storage?.get('5950d965e89ee73edf2ed20ed2003cc3').then(function(doc){
       //console.log(doc)
@@ -59,6 +60,24 @@ export default {
       //console.log("j'imprime un nom ici...")
       //console.log(this.storage?.name)
     },
+
+    async getId(nomObjet) {
+      // Retourne directement la promesse
+      return await this.storage?.allDocs({ include_docs: true }).then((result) => {
+        const doc = result.rows.find((row) =>
+          row.doc.velos.some((velo) => velo.nom === nomObjet)
+        );
+        if (doc) {
+          return doc.doc._id; // Assurez-vous d'utiliser _id, pas doc_id
+        } else {
+          console.log("Vélo non trouvé");
+          return null;
+        }
+      }).catch((error) => {
+          console.error("Erreur lors de l'ajout du document :", error)
+        })
+    },
+
     //Créer un nouveau document
     createNewDoc(newDoc: any) {
       this.storage?.post(newDoc)
@@ -72,6 +91,26 @@ export default {
           console.error("Erreur lors de l'ajout du document :", error)
         })
     },
+
+    removeDoc(id) {
+      if (id === null) {
+        console.log("Aucun document ne peut être retiré")
+        return;
+      }
+
+      this.storage.get(id)
+        .then(doc => {
+          return this.storage.remove(doc);
+        }).then(result => {
+          console.log("Document supprimé avec succès :", result);
+          // Supprime également le document de `datas` local si nécessaire
+          this.datas = this.datas.filter(d => d._id !== id);
+        })
+        .catch(err => {
+          console.log("Erreur lors de la suppression :", err);
+        });
+    },
+
     getFakeDoc() {
       const nouveauVelo = {
         velos: [
@@ -94,13 +133,18 @@ export default {
   },
 
   // Hook mounted pour initialiser la base de données lors du montage du composant
-  mounted() {
+  async mounted() {
     this.initDatabase()
-    this.fetchData()
+    //this.fetchData()
     this.getInfo()
     this.getName()
     //this.createNewDoc(this.getFakeDoc())
-    this.getName();
+    //this.getName();
+    const velo = await this.getId("Velo de Montagne XTRail");
+    console.log(this.getId("Velo de Montagne XTRail"))
+    
+    //this.removeDoc(this.getId())
+    //this.getName()
   }
 }
 </script>
