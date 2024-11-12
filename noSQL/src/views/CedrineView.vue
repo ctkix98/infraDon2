@@ -61,11 +61,11 @@ export default {
       //console.log(this.storage?.name)
     },
 
-    async getId(nomObjet) {
+    async getId(nomObjet: string) {
       // Retourne directement la promesse
       return await this.storage?.allDocs({ include_docs: true }).then((result) => {
-        const doc = result.rows.find((row) =>
-          row.doc.velos.some((velo) => velo.nom === nomObjet)
+        const doc: any = result.rows.find((row: any) =>
+          row.doc?.velos?.some((velo: any) => velo.nom === nomObjet)
         );
         if (doc) {
           return doc.doc._id; // Assurez-vous d'utiliser _id, pas doc_id
@@ -74,8 +74,8 @@ export default {
           return null;
         }
       }).catch((error) => {
-          console.error("Erreur lors de l'ajout du document :", error)
-        })
+        console.error("Erreur lors de l'ajout du document :", error)
+      })
     },
 
     //Créer un nouveau document
@@ -92,15 +92,15 @@ export default {
         })
     },
 
-    removeDoc(id) {
+    removeDoc(id: string) {
       if (id === null) {
         console.log("Aucun document ne peut être retiré")
         return;
       }
 
-      this.storage.get(id)
+      this.storage?.get(id)
         .then(doc => {
-          return this.storage.remove(doc);
+          return this.storage?.remove(doc);
         }).then(result => {
           console.log("Document supprimé avec succès :", result);
           // Supprime également le document de `datas` local si nécessaire
@@ -142,7 +142,7 @@ export default {
     //this.getName();
     const velo = await this.getId("Velo de Montagne XTRail");
     console.log(this.getId("Velo de Montagne XTRail"))
-    
+
     //this.removeDoc(this.getId())
     //this.getName()
   }
