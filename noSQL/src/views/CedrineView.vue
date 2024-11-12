@@ -11,7 +11,7 @@ export default {
   methods: {
     // Initialisation de la base de données
     initDatabase() {
-      const pouchDB = new PouchDB('http://localhost:5984/bikeshop')
+      const pouchDB = new PouchDB('http://admin:admin@localhost:5984/bikeshop')
       if (pouchDB) {
         console.log('Connection with PouchDB established successfully')
         //console.log($pouchDB)
@@ -61,13 +61,17 @@ export default {
       //console.log(this.storage?.name)
     },
 
-    async getId(nomObjet: string) {
-      // Retourne directement la promesse
-      return await this.storage?.allDocs({ include_docs: true }).then((result) => {
+    /*
+    non async 
+    */
+    getIdInitialProblemVersion1(nomObjet: string) {
+      console.log('--------- getIdInitialProblemVersion1 ---------')
+      this.storage?.allDocs({ include_docs: true }).then((result) => {
         const doc: any = result.rows.find((row: any) =>
           row.doc?.velos?.some((velo: any) => velo.nom === nomObjet)
         );
         if (doc) {
+          console.log("Vélo trouvé", "getIdInitialProblemVersion1");
           return doc.doc._id; // Assurez-vous d'utiliser _id, pas doc_id
         } else {
           console.log("Vélo non trouvé");
@@ -75,6 +79,79 @@ export default {
         }
       }).catch((error) => {
         console.error("Erreur lors de l'ajout du document :", error)
+        return null
+      })
+    },
+
+    /*
+    retourne l'appel à allDocs 
+    */
+    getIdInitialProblemVersion2(nomObjet: string) {
+      console.log('--------- getIdInitialProblemVersion2 ---------')
+      return this.storage?.allDocs({ include_docs: true }).then((result) => {
+        const doc: any = result.rows.find((row: any) =>
+          row.doc?.velos?.some((velo: any) => velo.nom === nomObjet)
+        );
+        if (doc) {
+          console.log("Vélo trouvé", "getIdInitialProblemVersion2");
+          return doc.doc._id; // Assurez-vous d'utiliser _id, pas doc_id
+        } else {
+          console.log("Vélo non trouvé", "getIdInitialProblemVersion2");
+          return null;
+        }
+      }).catch((error) => {
+        console.error("Erreur lors de l'ajout du document :", error)
+        return null
+      })
+    },
+
+    /*
+      ne retourne en réalité rien
+      comme les return sont dans les then et catch de l'appel allDocs, nous sommes hors de notre composant
+      il faudrait dans ce cas utiliser une variable (comme datas) et un accesseur à notre composnant avec un 
+      const self = this   
+    */
+    getIdInitialProblemVersion3(nomObjet: string) {
+      console.log('--------- getIdInitialProblemVersion3 ---------')
+      this.storage?.allDocs({ include_docs: true }).then((result) => {
+        const doc: any = result.rows.find((row: any) =>
+          row.doc?.velos?.some((velo: any) => velo.nom === nomObjet)
+        );
+        if (doc) {
+          console.log("Vélo trouvé", "getIdInitialProblemVersion3");
+          return doc.doc._id; // Assurez-vous d'utiliser _id, pas doc_id
+        } else {
+          console.log("Vélo non trouvé");
+          return null;
+        }
+      }).catch((error) => {
+        console.error("Erreur lors de l'ajout du document :", error)
+        return null
+      })
+    },
+
+
+    /*
+    async : ici, la method attends que le alldocs.then ou le catch soit exécuté
+    une fois que le then ou le catch ont retourné quelque chose, alors la method getId retourne bien le résultat du then ou du catch
+    */
+    async getId(nomObjet: string) {
+      console.log('--------- getId ---------')
+      // Retourne directement la promesse
+      return await this.storage?.allDocs({ include_docs: true }).then((result) => {
+        const doc: any = result.rows.find((row: any) =>
+          row.doc?.velos?.some((velo: any) => velo.nom === nomObjet)
+        );
+        if (doc) {
+          console.log("Vélo trouvé");
+          return doc.doc._id;
+        } else {
+          console.log("Vélo non trouvé");
+          return null;
+        }
+      }).catch((error) => {
+        console.error("Erreur lors de l'ajout du document :", error)
+        return null;
       })
     },
 
@@ -136,15 +213,67 @@ export default {
   async mounted() {
     this.initDatabase()
     //this.fetchData()
-    this.getInfo()
-    this.getName()
+    //this.getInfo()
+    //this.getName()
     //this.createNewDoc(this.getFakeDoc())
     //this.getName();
-    const velo = await this.getId("Velo de Montagne XTRail");
-    console.log(this.getId("Velo de Montagne XTRail"))
+
+
+    console.log('**** GET ID ****')
+
+    /*
+    CASE 1 : WORKING CASE
+    */
+
+    let velo = await this.getId("Velo de Montagne XTRail");
+    // comme j'ai bien attendu 'await' la réponse des then et catch, j'ai bien trouvé mon vélo, cela fonctionne
+    console.log('velo async', velo);
+    /* Voici ce que j'obtiens chez moi
+    --------- getId ---------
+    CedrineView.vue:95 Vélo trouvé
+    CedrineView.vue:174 velo async 30e5c000d1e0daf435860249b20087ba
+    */
+
+    /*
+    CASE 2 : KO
+    */
+    velo = this.getIdInitialProblemVersion1("Velo de Montagne XTRail");
+    console.log('velo non async', velo);
+    /* Voici ce que j'obtiens chez moi
+    --------- getIdInitialProblemVersion1 ---------
+    CedrineView.vue:183 velo non async undefined
+    CedrineView.vue:70 Vélo trouvé
+
+    1) Comme je n'ai pas attendu, les instructions sont joués les unes rapidement à la suite des autres, donc,les instructions
+      velo = this.getIdInitialProblemVersion1
+    et 
+      console.log
+    s'enchaînent, donc on log undefined, car en réalité, l'apple de la méhode getIdInitialProblemVersion1 n'est encore terminé,
+    cependant quand l'appel de la méthode est terminé, on voit bien qu'il trouve un vélo en affichant console.log("Vélo trouvé")
+    */
 
     //this.removeDoc(this.getId())
     //this.getName()
+
+    /*
+    CASE 3 : KO
+    */
+    velo = this.getIdInitialProblemVersion2("Velo de Montagne XTRail");
+    // Ici, la method retourne une promise, donc, il faut que je fasse un then et/ou catch
+    velo.then(() => { console.log('execution ok') }).catch((error: any) => { console.log('error', error) })
+    // Mais je n'ai pas le vélo en soit
+    console.log('velo retrun promise async', velo);
+
+
+    /*
+    CASE 4 : KO
+    */
+    velo = this.getIdInitialProblemVersion3("Velo de Montagne XTRail");
+    // Même si cette méthode finit par trouvere le vélo, elle ne renvoie en réalité rien, elle n'attend pas l'appel à la DB
+    // donc, cela retourne undefined
+    console.log('velo no return', velo);
+
+
   }
 }
 </script>
