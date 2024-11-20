@@ -206,8 +206,16 @@ export default {
         ]
       }
       return nouveauVelo;
+    },
+
+    //Modifier la DB
+    updateDoc(id : string){ //passer en paramètre l'id de ce que l'on veut modifier, comme pour le remove
+    
+
     }
   },
+
+
 
   // Hook mounted pour initialiser la base de données lors du montage du composant
   async mounted() {
@@ -215,8 +223,10 @@ export default {
     //this.fetchData()
     //this.getInfo()
     //this.getName()
-    //this.createNewDoc(this.getFakeDoc())
+    //this.createNewDoc(this.getFakeDoc()) --> déjà ajouté à dans la DB
     //this.getName();
+    //this.removeDoc(await this.getId("Velo de Montagne XTRail")) --> a déjà été retiré de la DB
+    //this.getName()
 
 
     console.log('**** GET ID ****')
@@ -252,9 +262,7 @@ export default {
     cependant quand l'appel de la méthode est terminé, on voit bien qu'il trouve un vélo en affichant console.log("Vélo trouvé")
     */
 
-    //this.removeDoc(this.getId())
-    //this.getName()
-
+    
     /*
     CASE 3 : KO
     */
