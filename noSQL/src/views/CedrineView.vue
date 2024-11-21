@@ -8,6 +8,7 @@ export default {
     }
   },
 
+
   methods: {
     // Initialisation de la base de données
     initDatabase() {
@@ -208,9 +209,51 @@ export default {
       return nouveauVelo;
     },
 
+    getInput(id :string) {
+      const inputElement = document.querySelector(`.input-${id}`) as HTMLInputElement; //faire une classe dynamique, pour recevoir bien l'input qu'il faut changer
+      if (inputElement) {
+        //console.log(inputElement)
+        return inputElement.value;
+      }
+      return null; // Ou une valeur par défaut, ex. : ""
+    },
+
+
     //Modifier la DB
-    updateDoc(id : string){ //passer en paramètre l'id de ce que l'on veut modifier, comme pour le remove
-    
+    async updateDoc(id: string, newName: string | null = null) { //passer en paramètre l'id de ce que l'on veut modifier, comme pour le remove
+    if(newName === null || newName ===""){
+      console.log("C'est la merde")
+      return;
+    }
+    try {
+      // Charger le document existant
+      const doc = await this.storage?.get(id);
+
+      if (doc && doc.velos && doc.velos.length > 0) { //ici on vérifie que le document existe, que le truc velos existe, et que la taille du doc soit plus grand que 0
+        // Modifier le nom du premier vélo
+        doc.velos[0].nom = newName;
+
+        // Sauvegarder le document mis à jour
+        const response = await this.storage?.put(doc);
+        console.log("Document mis à jour avec succès :", response);
+        this.fetchData()
+
+        // Mettre à jour localement dans `datas` pour refléter les changements
+        const index = this.datas.findIndex((item) => item._id === id);
+        if (index !== -1) {
+          this.datas[index].velos[0].nom = newName;
+        }
+      } else {
+        console.warn("Document ou vélos introuvables");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour :", error);
+    }
+
+  
+
+
+
 
     }
   },
@@ -222,7 +265,7 @@ export default {
     this.initDatabase()
     //this.fetchData()
     //this.getInfo()
-    //this.getName()
+    this.getName()
     //this.createNewDoc(this.getFakeDoc()) --> déjà ajouté à dans la DB
     //this.getName();
     //this.removeDoc(await this.getId("Velo de Montagne XTRail")) --> a déjà été retiré de la DB
@@ -262,7 +305,7 @@ export default {
     cependant quand l'appel de la méthode est terminé, on voit bien qu'il trouve un vélo en affichant console.log("Vélo trouvé")
     */
 
-    
+
     /*
     CASE 3 : KO
     */
@@ -295,6 +338,22 @@ export default {
       Ajouter un document
     </button>
   </div>
+  <h1>Liste des vélos disponibles</h1>
+  <ul>
+    <li v-for="doc in datas" :key="doc._id">
+      <h3>ID: {{ doc._id }}</h3>
+      <ul v-if="doc.velos">
+        <li v-for="velo in doc.velos" :key="velo.nom">
+          Nom: {{ velo.nom }}
+        </li>
+      </ul>
+      <button @click="removeDoc(doc._id)">Supprimer</button>
+      <input :class="'input-' + doc._id" type="text" :placeholder="'Nouveau nom pour ' + doc.velos[0]?.nom" />
+      <button class="update" @click="() => updateDoc(doc._id, getInput(doc._id))">
+        Modifier le document
+      </button>
+    </li>
+  </ul>
 </template>
 
 <style>
@@ -304,5 +363,13 @@ export default {
     display: flex;
     align-items: center;
   }
+}
+
+.update {
+  margin-left: 15px;
+}
+
+.input {
+  margin-left: 15px;
 }
 </style>
