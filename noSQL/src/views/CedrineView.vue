@@ -1,5 +1,6 @@
 <script lang="ts">
 import PouchDB from 'pouchdb'
+
 export default {
   data() {
     return {
@@ -12,7 +13,7 @@ export default {
   methods: {
     // Initialisation de la base de données
     initDatabase() {
-      const pouchDB = new PouchDB('http://admin:admin@localhost:5984/bikeshop')
+      const pouchDB = new PouchDB('local')
       if (pouchDB) {
         console.log('Connection with PouchDB established successfully')
         //console.log($pouchDB)
@@ -22,11 +23,41 @@ export default {
       this.storage = pouchDB
     },
 
+    replicateFrom() {
+      const distanteDbURL = 'http://admin:admin@localhost:5984/bikeshop'
+      this.storage?.replicate.from(distanteDbURL, {
+        live: true,
+        retry: true
+      }).on('error', function (err) {
+        console.log('sync error', err)
+      });
+      this.fetchData();
+    },
+    replicateTo() {
+      const distanteDbURL = 'http://admin:admin@localhost:5984/bikeshop'
+      this.storage?.replicate.to(distanteDbURL, {
+        live: true,
+        retry: true
+      }).on('error', function (err) {
+        console.log('sync error', err)
+      });
+
+      this.fetchData();
+    },
+
     fetchData() {
-      this.storage?.allDocs().then(function (doc) {
-        console.log('Ce sont toutes les données')
-        console.log(doc)
-      })
+      console.log('fetchData')
+      if (this.storage) {
+        this.storage.allDocs({
+          include_docs: true,
+          attachments: true
+        }).then((result: any) => {
+          //console.log('fetchData success', result);
+          this.datas = result.rows;
+        }).catch((error: any) => {
+          console.log('fetchData error', error);
+        });
+      }
     },
 
     //Récupère les infos générales de la DB
@@ -209,7 +240,7 @@ export default {
       return nouveauVelo;
     },
 
-    getInput(id :string) {
+    getInput(id: string) {
       const inputElement = document.querySelector(`.input-${id}`) as HTMLInputElement; //faire une classe dynamique, pour recevoir bien l'input qu'il faut changer
       if (inputElement) {
         //console.log(inputElement)
@@ -221,39 +252,36 @@ export default {
 
     //Modifier la DB
     async updateDoc(id: string, newName: string | null = null) { //passer en paramètre l'id de ce que l'on veut modifier, comme pour le remove
-    if(newName === null || newName ===""){
-      console.log("C'est la merde")
-      return;
-    }
-    try {
-      // Charger le document existant
-      const doc = await this.storage?.get(id);
-
-      if (doc && doc.velos && doc.velos.length > 0) { //ici on vérifie que le document existe, que le truc velos existe, et que la taille du doc soit plus grand que 0
-        // Modifier le nom du premier vélo
-        doc.velos[0].nom = newName;
-
-        // Sauvegarder le document mis à jour
-        const response = await this.storage?.put(doc);
-        console.log("Document mis à jour avec succès :", response);
-        this.fetchData()
-
-        // Mettre à jour localement dans `datas` pour refléter les changements
-        const index = this.datas.findIndex((item) => item._id === id);
-        if (index !== -1) {
-          this.datas[index].velos[0].nom = newName;
-        }
-      } else {
-        console.warn("Document ou vélos introuvables");
+      if (newName === null || newName === "") {
+        console.log("C'est la merde")
+        return;
       }
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour :", error);
-    }
+      try {
+        // Charger le document existant
+        const doc = await this.storage?.get(id)
+          .then((doc: any) => {
+            if (doc && doc.velos && doc.velos.length > 0) { //ici on vérifie que le document existe, que le truc velos existe, et que la taille du doc soit plus grand que 0
+              // Modifier le nom du premier vélo
+              console.log(doc.velos)
+              doc.velos[0].nom = newName;
 
-  
+              // Sauvegarder le document mis à jour
+              const response =  this.storage?.put(doc);
+              console.log("Document mis à jour avec succès :", response);
+              this.fetchData()
 
-
-
+              // Mettre à jour localement dans `datas` pour refléter les changements
+              const index = this.datas.findIndex((item) => item._id === id);
+              if (index !== -1) {
+                this.datas[index].velos[0].nom = newName;
+              }
+            } else {
+              console.warn("Document ou vélos introuvables");
+            }
+          })
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour :", error);
+      }
 
     }
   },
@@ -270,6 +298,7 @@ export default {
     //this.getName();
     //this.removeDoc(await this.getId("Velo de Montagne XTRail")) --> a déjà été retiré de la DB
     //this.getName()
+    //this.replicateFrom();
 
 
     console.log('**** GET ID ****')
@@ -348,12 +377,18 @@ export default {
         </li>
       </ul>
       <button @click="removeDoc(doc._id)">Supprimer</button>
-      <input :class="'input-' + doc._id" type="text" :placeholder="'Nouveau nom pour ' + doc.velos[0]?.nom" />
+      <input :class="'input-' + doc._id" type="text" :placeholder="'Nouveau nom pour ' + datas[0]?.nom" />
       <button class="update" @click="() => updateDoc(doc._id, getInput(doc._id))">
         Modifier le document
       </button>
     </li>
   </ul>
+  <button class="update" @click="() => replicateFrom()">
+    Replicate From
+  </button>
+  <button class="update" @click="() => replicateTo()">
+    Replicate To
+  </button>
 </template>
 
 <style>
